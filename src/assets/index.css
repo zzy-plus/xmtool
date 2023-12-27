@@ -1,0 +1,17 @@
+.left-view {
+    background-color: #00bd7e;
+}
+
+body {
+    background-color: #efefef; /* 设置背景颜色，可以根据需要更改颜色值 */
+    margin: 0; /* 确保没有默认边距 */
+}
+
+.radius {
+    height: 35px;
+    width: 40%;
+    border: 1px solid var(--el-border-color);
+    border-radius: 0;
+    margin-top: 5px;
+    background-color: #ffdc98;
+}

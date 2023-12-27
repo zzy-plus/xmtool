@@ -1,15 +1,38 @@
-const {app, BrowserWindow, ipcMain} = require('electron')
+const {app, BrowserWindow, ipcMain, Menu, dialog} = require('electron')
 const path = require('path')
 const fs = require('fs')
 const { exec } = require('child_process')
 const {readFile, updateFile, writeFile} = require('./service/service')
 
-const env = ''
+const env = 'dev'
+let win;
+
+const mainMenu = Menu.buildFromTemplate([
+    {
+        label: '菜单',
+        submenu: [
+            {
+                label: '关闭窗口',
+                role: 'quit'
+            },
+            {
+                label: '关于',
+                click: ()=>showDlg
+            }
+        ]
+    }
+])
+
+const showDlg = ()=>{
+
+}
 
 const createWindow = ()=>{
-    const win = new BrowserWindow({
-        width:800,
-        height:600,
+    win = new BrowserWindow({
+        width:600,
+        height:613,
+        backgroundColor:'#ffffff',
+        resizable: false,
         webPreferences:{
             preload: path.resolve(__dirname,'preload.js'),
             sandbox: false
@@ -22,6 +45,8 @@ const createWindow = ()=>{
     }else {
         win.loadFile('dist/index.html')
     }
+
+    Menu.setApplicationMenu(mainMenu)
 }
 
 
@@ -88,8 +113,6 @@ ipcMain.handle('event_save',(event,_props)=>{
             resolve({status:false, msg:'保存失败.'})
             console.log('Fail to Save')
         }
-
-
         })
     })
 })
