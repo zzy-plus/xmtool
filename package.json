@@ -24,7 +24,7 @@
   },
   "build": {
     "appId": "com.example.myvueapp",
-    "productName": "MyVueApp",
+    "productName": "XmTool",
     "directories": {
       "output": "build"
     },
@@ -51,7 +51,8 @@
       "target": "dmg"
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "src/assets/favicon.ico"
     }
   }
 }
