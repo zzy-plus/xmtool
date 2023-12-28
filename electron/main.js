@@ -39,6 +39,7 @@ const createWindow = ()=>{
         //win.webContents.openDevTools()
     }else {
         win.loadFile('dist/index.html')
+        win.webContents.openDevTools()
     }
 
     Menu.setApplicationMenu(mainMenu)

@@ -19,23 +19,26 @@ for (const profile of profiles) {
         execSync(`SII_Decrypt \"${profile_sii_path}\"`);
     } catch (error) {
         // 处理错误
-        console.log('Error executing command:', error.message);
+        console.log('Error executing command:', error.message)
     }
-    let content = fs.readFileSync(profile_sii_path,'utf8')
-    let lines = content.split('\n');
-    for (let i = lines.length - 1; i > 0; i--) {
-        if(lines[i].startsWith(' profile_name')){
-            let item = lines[i].split(':')[1].trim().replace(/"/g,'')
-            let profile_name = decodeURIComponent(item.replace(/\\x/g, "%"));
-            documents.push({
-                profile: profile,
-                profile_name: profile_name
-            })
-            console.log(profile_name)
-            break
+    try{
+        let content = fs.readFileSync(profile_sii_path,'utf8')
+        let lines = content.split('\n');
+        for (let i = lines.length - 1; i > 0; i--) {
+            if(lines[i].startsWith(' profile_name')){
+                let item = lines[i].split(':')[1].trim().replace(/"/g,'')
+                let profile_name = decodeURIComponent(item.replace(/\\x/g, "%"));
+                documents.push({
+                    profile: profile,
+                    profile_name: profile_name
+                })
+                console.log(profile_name)
+                break
+            }
         }
+    }catch (err){
+        console.log(err.message)
     }
-
 }
 
 
