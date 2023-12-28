@@ -1,10 +1,10 @@
 const {app, BrowserWindow, ipcMain, Menu, dialog} = require('electron')
 const path = require('path')
 const fs = require('fs')
-const { exec } = require('child_process')
+const { execSync, exec } = require('child_process');
 const {readFile, updateFile, writeFile} = require('./service/service')
 
-const env = 'dev'
+const env = ''
 let win;
 
 const mainMenu = Menu.buildFromTemplate([
@@ -14,10 +14,6 @@ const mainMenu = Menu.buildFromTemplate([
             {
                 label: '关闭窗口',
                 role: 'quit'
-            },
-            {
-                label: '关于',
-                click: ()=>showDlg
             }
         ]
     }
@@ -26,10 +22,9 @@ const mainMenu = Menu.buildFromTemplate([
 const showDlg = ()=>{
 
 }
-
 const createWindow = ()=>{
     win = new BrowserWindow({
-        width:600,
+        width:800,
         height:613,
         backgroundColor:'#ffffff',
         resizable: false,
@@ -41,7 +36,7 @@ const createWindow = ()=>{
 
     if(env === 'dev'){
         win.loadURL('http://localhost:5173/')
-        win.webContents.openDevTools()
+        //win.webContents.openDevTools()
     }else {
         win.loadFile('dist/index.html')
     }
@@ -61,13 +56,37 @@ app.on('window-all-closed', () => {
 
 ipcMain.handle('event_get_saves',(event,path)=>{
     return new Promise((resolve, reject) => {
-        fs.readdir(path, (err, files) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(files);
+        const files = fs.readdirSync(path)
+        const saves = []
+        //console.log('45456465454561111111*****')
+        for (const file of files) {
+            if(file.startsWith('auto'))
+                continue;
+            let info_sii_path = path + '\\' + file + '\\info.sii'
+            console.log(info_sii_path)
+            try {
+                // 在这里执行你的CMD命令
+                execSync(`SII_Decrypt \"${info_sii_path}\"`);
+            } catch (error) {
+                // 处理错误
+                console.log('Error executing command:', error.message);
             }
-        });
+            let content = fs.readFileSync(info_sii_path,'utf8')
+            let lines = content.split('\n')
+            for (const line of lines) {
+
+                if(line.startsWith(' name:')){
+                    let item = line.split(':')[1].trim().replace(/"/g,'')
+                    let save_name = decodeURIComponent(item.replace(/\\x/g, "%"));
+                    saves.push({
+                        save: file,
+                        save_name: save_name
+                    })
+                    break
+                }
+            }
+        }
+        resolve(saves)
     });
 })
 

@@ -1,6 +1,7 @@
 <script setup>
 import {ref, onMounted, watch} from "vue";
 import '@/assets/index.css'
+import OptionView from "@/views/OptionView.vue";
 
 const imgUrl = 'https://imgse.com/i/piqFTun'
 
@@ -53,6 +54,11 @@ const onSave = async () => {
   }
 }
 
+const handleProps = (newProps)=>{
+  props.value = newProps
+  console.log(newProps)
+}
+
 onMounted(() => {
   document_opts.value = myApi.getDoc()
   if (!document_opts.value) {
@@ -67,15 +73,15 @@ onMounted(() => {
 <template>
 
   <el-row :gutter="0">
-    <el-col :span="11">
+    <el-col :span="10">
       <div
           style="height: 500px; background-color: white; display: flex; border-radius: 10px;
           flex-direction: column; justify-content: space-around; align-items: center"
           :style="{boxShadow: `var(--el-box-shadow-light)`}">
 
         <!--LOGO-->
-        <div style="width: 250px; display: flex; flex-direction: column; align-items: center">
-          <img src="@/assets/logo.png" style="object-fit: contain; width: 250px"/>
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <img src="@/assets/logo.png" style="object-fit: contain; width: 235px; border-radius: 15px"/>
         </div>
 
         <!--提示-->
@@ -98,9 +104,9 @@ onMounted(() => {
           <el-select v-model="document_selected" class="m-2" placeholder="请选择档案" size="large" @change="onChangeDoc">
             <el-option
                 v-for="item in document_opts"
-                :key="item"
-                :label="item"
-                :value="item"
+                :key="item.profile"
+                :label="item.profile_name"
+                :value="item.profile"
             />
           </el-select>
         </div>
@@ -109,9 +115,9 @@ onMounted(() => {
           <el-select v-model="save_selected" class="m-2" placeholder="请选择存档" size="large" @change="onChangeSave">
             <el-option
                 v-for="item in save_opts"
-                :key="item"
-                :label="item"
-                :value="item"
+                :key="item.save"
+                :label="item.save_name"
+                :value="item.save"
             />
           </el-select>
         </div>
@@ -122,71 +128,11 @@ onMounted(() => {
       </div>
     </el-col>
     <el-col :span="1"></el-col>
-    <el-col :span="11">
-      <div style="height: 500px; display: flex;
-          flex-direction: column; justify-content: space-around; align-items: flex-start; padding-left: 30px;
-          border-radius: 10px; background-color: white"
-           :style="{boxShadow: `var(--el-box-shadow-light)`}">
 
-        <el-checkbox v-model="props.money" size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
-          <template #default>
-            <el-tag effect="dark" type="warning">
-              <span style="font-weight: bold; font-size: medium" >&nbsp;&nbsp;&nbsp;&nbsp;金币1亿&nbsp;&nbsp;&nbsp;&nbsp;</span>
-            </el-tag>
-          </template>
-        </el-checkbox>
-        <el-checkbox v-model="props.level" size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
-          <template #default>
-            <el-tag effect="dark" type="warning">
-              <span style="font-weight: bold; font-size: medium" >&nbsp;&nbsp;&nbsp;&nbsp;等级100&nbsp;&nbsp;&nbsp;&nbsp;</span>
-            </el-tag>
-          </template>
-        </el-checkbox>
-        <el-checkbox v-model="props.skill" size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
-          <template #default>
-            <el-tag effect="dark" type="warning">
-              <span style="font-weight: bold; font-size: medium" >解锁全部技能</span>
-            </el-tag>
-          </template>
-        </el-checkbox>
-        <el-checkbox v-model="props.city" size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
-          <template #default>
-            <el-tag effect="dark" type="warning">
-              <span style="font-weight: bold; font-size: medium" >解锁全部城市</span>
-            </el-tag>
-          </template>
-        </el-checkbox>
-        <el-checkbox v-model="props.garage" size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
-          <template #default>
-            <el-tag effect="dark" type="warning">
-              <span style="font-weight: bold; font-size: medium" >解锁全部车库</span>
-            </el-tag>
-          </template>
-        </el-checkbox>
-        <el-checkbox v-model="props.truckVendors" size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
-          <template #default>
-            <el-tag effect="dark" type="warning">
-              <span style="font-weight: bold; font-size: medium" >&nbsp;解锁销售商&nbsp;&nbsp;</span>
-            </el-tag>
-          </template>
-        </el-checkbox>
-        <el-checkbox v-model="props.fixAll" size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
-          <template #default>
-            <el-tag effect="dark" type="warning">
-              <span style="font-weight: bold; font-size: medium" >修复全部车辆</span>
-            </el-tag>
-          </template>
-        </el-checkbox>
-        <el-checkbox v-model="props.fuelling" size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
-          <template #default>
-            <el-tag effect="dark" type="warning">
-              <span style="font-weight: bold; font-size: medium" >全部车辆满油</span>
-            </el-tag>
-          </template>
-        </el-checkbox>
+    <!-- *************************** 分割线 *************************************************************-->
 
-
-      </div>
+    <el-col :span="13">
+      <OptionView @onPropsChange="handleProps"/>
     </el-col>
 
   </el-row>
