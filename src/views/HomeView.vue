@@ -68,6 +68,10 @@ onMounted(() => {
 })
 
 
+const open = ()=>{
+  ipc.invoke('event_open','')
+}
+
 </script>
 
 <template>
@@ -81,7 +85,8 @@ onMounted(() => {
 
         <!--LOGO-->
         <div style="display: flex; flex-direction: column; align-items: center;">
-          <img src="@/assets/logo.png" style="object-fit: contain; width: 235px; border-radius: 15px"/>
+          <img src="@/assets/logo.png" style="object-fit: contain; width: 235px; border-radius: 15px; cursor: pointer;"
+                    @click="open"/>
         </div>
 
         <!--提示-->
