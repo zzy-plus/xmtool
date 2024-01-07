@@ -2,6 +2,7 @@
 import {ref, onMounted, watch} from "vue";
 import '@/assets/index.css'
 import OptionView from "@/views/OptionView.vue";
+import { DocumentChecked, FolderOpened } from '@element-plus/icons-vue';
 
 const imgUrl = 'https://imgse.com/i/piqFTun'
 
@@ -21,7 +22,6 @@ const onChangeDoc = async (doc) => {
 }
 const onChangeSave = (save) => {
   save_selected.value = save
-  console.log(save_selected.value)
 }
 
 const props = ref({
@@ -65,7 +65,31 @@ onMounted(() => {
     ElMessage.error('路径错误x')
     document_opts.value = []
   }
+  if (document_opts.value.length === 0){
+    ElMessage.error('未找到存档信息，建议检查路径!')
+  }
 })
+
+const onDecrypt = async ()=>{
+  if(!document_selected.value || !save_selected.value) return;
+  const savePath = etsPath + '\\' + document_selected.value + '\\save\\' + save_selected.value
+  const {status} = await ipc.invoke('event_decrypt', savePath)
+  if (status){
+    ElMessage({
+      message: '解密成功.',
+      type: 'success'
+    })
+  }else {
+    ElMessage.error('解密失败')
+  }
+}
+
+const onOpenFolder = async ()=>{
+  if(!document_selected.value || !save_selected.value) return;
+  const savePath = etsPath + '\\' + document_selected.value + '\\save\\' + save_selected.value
+  const {status} = await ipc.invoke('event_openfolder', savePath)
+
+}
 
 
 const open = ()=>{
@@ -105,29 +129,42 @@ const open = ()=>{
           </el-text>
         </div>
 
-        <div :style="{boxShadow: `var(--el-box-shadow)`}">
-          <el-select v-model="document_selected" class="m-2" placeholder="请选择档案" size="large" @change="onChangeDoc">
-            <el-option
-                v-for="item in document_opts"
-                :key="item.profile"
-                :label="item.profile_name"
-                :value="item.profile"
-            />
-          </el-select>
+        <!--两个选择框-->
+        <div>
+          <div :style="{boxShadow: `var(--el-box-shadow-light)`}">
+            <el-select v-model="document_selected" class="m-2" placeholder="请选择档案" size="large" @change="onChangeDoc">
+              <el-option
+                  v-for="item in document_opts"
+                  :key="item.profile"
+                  :label="item.profile_name"
+                  :value="item.profile"
+              />
+            </el-select>
+          </div>
+
+          <div :style="{boxShadow: `var(--el-box-shadow-light)`}" style="margin-top: 10px">
+            <el-select v-model="save_selected" class="m-2" placeholder="请选择存档" size="large" @change="onChangeSave">
+              <el-option
+                  v-for="item in save_opts"
+                  :key="item.save"
+                  :label="item.save_name"
+                  :value="item.save"
+              />
+            </el-select>
+          </div>
         </div>
 
-        <div :style="{boxShadow: `var(--el-box-shadow)`}">
-          <el-select v-model="save_selected" class="m-2" placeholder="请选择存档" size="large" @change="onChangeSave">
-            <el-option
-                v-for="item in save_opts"
-                :key="item.save"
-                :label="item.save_name"
-                :value="item.save"
-            />
-          </el-select>
+        <!--按钮-->
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <el-button-group class="ml-4">
+            <el-button type="success" :icon="DocumentChecked" size="small" @click="onDecrypt">解密</el-button>
+            <el-button type="success" :icon="FolderOpened" size="small" @click="onOpenFolder">浏览</el-button>
+          </el-button-group>
+
+          <el-button type="warning" @click="onSave" style="margin-top: 10px">&nbsp;&nbsp;&nbsp;保存&nbsp;&nbsp;&nbsp;</el-button>
         </div>
 
-        <el-button type="warning" @click="onSave" plain>&nbsp;&nbsp;&nbsp;保存&nbsp;&nbsp;&nbsp;</el-button>
+
 
 
       </div>

@@ -41,6 +41,7 @@ const createWindow = () => {
         backgroundColor: '#ffffff',
         resizable: false,
         // title: 'XM修改工具',
+        icon: path.resolve(__dirname, '../src/assets/favicon_m.ico'), // 指定图标路径
         webPreferences: {
             preload: path.resolve(__dirname, 'preload.js'),
             sandbox: false
@@ -49,7 +50,7 @@ const createWindow = () => {
 
     if (env === 'dev') {
         win.loadURL('http://localhost:5173/')
-        //win.webContents.openDevTools()
+        win.webContents.openDevTools()
     } else {
         win.loadFile('dist/index.html')
         //win.webContents.openDevTools()
@@ -152,6 +153,31 @@ ipcMain.handle('event_save', (event, _props) => {
 ipcMain.handle('event_open', () => {
     const urlToOpen = 'https://xmvtc.mysxl.cn/'
     execSync(`start ${urlToOpen}`)
+})
+
+ipcMain.handle('event_decrypt',(__, savePath)=>{
+    const filePath = savePath + '\\game.sii'
+    return new Promise((resolve,reject)=>{
+        try {
+            execSync(`SII_Decrypt \"${filePath}\"`);
+        } catch (error) {
+            // (没)处理错误
+        }
+        resolve({status:true})  //
+    })
+
+})
+
+ipcMain.handle('event_openfolder',(__, savePath)=>{
+    return new Promise((resolve,reject)=>{
+        try {
+            execSync(`explorer ${savePath}`);
+        } catch (error) {
+            // (没)处理错误
+        }
+        resolve({status:true})
+    })
+
 })
 
 
