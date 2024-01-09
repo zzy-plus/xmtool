@@ -51,6 +51,9 @@ const createWindow = () => {
     if (env === 'dev') {
         win.loadURL('http://localhost:5173/')
         win.webContents.openDevTools()
+    } else if (env === 'dev2') {
+        win.loadFile('dist/index.html')
+        // win.webContents.openDevTools()
     } else {
         win.loadFile('dist/index.html')
         //win.webContents.openDevTools()
@@ -67,6 +70,44 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
     app.quit()
+})
+
+ipcMain.handle('event_get_docs', (event, path) => {
+    return new Promise((resolve, reject) => {
+        try {
+            const profiles = fs.readdirSync(path)
+            const documents = []
+            for (const profile of profiles) {
+                let profile_sii_path = path + '\\' + profile + '\\profile.sii'
+                try {
+                    execSync(`SII_Decrypt \"${profile_sii_path}\"`);
+                } catch (error) {
+                }
+                //
+                try {
+                    let content = fs.readFileSync(profile_sii_path, 'utf8')
+                    let lines = content.split('\n');
+                    for (let i = lines.length - 1; i > 0; i--) {
+                        if (lines[i].startsWith(' profile_name')) {
+                            let item = lines[i].split(':')[1].trim().replace(/"/g, '')
+                            let profile_name = decodeURIComponent(item.replace(/\\x/g, "%"));
+                            documents.push({
+                                profile: profile,
+                                profile_name: profile_name
+                            })
+                            break
+                        }
+                    }
+                } catch (err) {
+                    console.log(err.message)
+                }
+            }
+            resolve({status: true, data: documents, msg: 'success'})
+        } catch (err) {
+            console.log(err.message)
+            resolve({status: false, data: null, msg: '文件路径错误'})
+        }
+    })
 })
 
 ipcMain.handle('event_get_saves', (event, path) => {
@@ -155,27 +196,27 @@ ipcMain.handle('event_open', () => {
     execSync(`start ${urlToOpen}`)
 })
 
-ipcMain.handle('event_decrypt',(__, savePath)=>{
+ipcMain.handle('event_decrypt', (__, savePath) => {
     const filePath = savePath + '\\game.sii'
-    return new Promise((resolve,reject)=>{
+    return new Promise((resolve, reject) => {
         try {
             execSync(`SII_Decrypt \"${filePath}\"`);
         } catch (error) {
             // (没)处理错误
         }
-        resolve({status:true})  //
+        resolve({status: true})  //
     })
 
 })
 
-ipcMain.handle('event_openfolder',(__, savePath)=>{
-    return new Promise((resolve,reject)=>{
+ipcMain.handle('event_openfolder', (__, savePath) => {
+    return new Promise((resolve, reject) => {
         try {
             execSync(`explorer ${savePath}`);
         } catch (error) {
             // (没)处理错误
         }
-        resolve({status:true})
+        resolve({status: true})
     })
 
 })

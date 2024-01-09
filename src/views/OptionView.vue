@@ -2,6 +2,7 @@
 import '@/assets/index.css'
 import {ref, watch} from "vue";
 const emit = defineEmits(['onPropsChange'])
+const imgUrl1 = 'https://s11.ax1x.com/2024/01/09/pFpQN6g.jpg'
 
 const props = ref({
   money: false,
@@ -62,6 +63,13 @@ watch(props,(newProps)=>{
             <div style="display: flex; flex-direction: column; align-items: center; padding: 8px;">
               <img src="@/assets/info.png" style="object-fit: cover; height: 180px; width: 65vh"/>
 
+            </div>
+          </div>
+        </el-carousel-item>
+        <el-carousel-item >
+          <div style="height: 180px; display: flex; justify-content: space-around; align-items: center">
+            <div style="display: flex; flex-direction: column; align-items: center; padding: 8px;">
+              <el-image :src="imgUrl1" style="object-fit: cover; height: 180px; width: 65vh"/>
             </div>
           </div>
         </el-carousel-item>
