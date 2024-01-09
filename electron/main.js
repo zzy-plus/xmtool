@@ -41,7 +41,8 @@ const createWindow = () => {
         backgroundColor: '#ffffff',
         resizable: false,
         // title: 'XM修改工具',
-        icon: path.resolve(__dirname, '../src/assets/favicon_m.ico'), // 指定图标路径
+        //icon: path.resolve(__dirname, '../src/assets/favicon_m.ico'), // 指定图标路径
+        icon: './assets/favicon_m.ico',
         webPreferences: {
             preload: path.resolve(__dirname, 'preload.js'),
             sandbox: false
@@ -115,10 +116,9 @@ ipcMain.handle('event_get_saves', (event, path) => {
         const files = fs.readdirSync(path)
         const saves = []
         for (const file of files) {
-            if (file.startsWith('auto'))
+            if (file.startsWith('auto') || file.startsWith('multi'))
                 continue;
             let info_sii_path = path + '\\' + file + '\\info.sii'
-            console.log(info_sii_path)
             try {
                 // 在这里执行你的CMD命令
                 execSync(`SII_Decrypt \"${info_sii_path}\"`);
