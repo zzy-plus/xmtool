@@ -1,29 +1,14 @@
 # xmtool
 
-This template should help get you started developing with Vue 3 in Vite.
+欧卡2/美卡修改工具  
+A tool for ETS2 & ATS 
 
-## Recommended IDE Setup
+## 目前存在的问题：
+项目使用 **electron-builder** 进行打包分发，发现项目使用第三方模块时，打包之后运行大概率会报错：
+[![pFPamE6.png](https://s11.ax1x.com/2024/01/13/pFPamE6.png)](https://imgse.com/i/pFPamE6)  
+报错信息均为缺失xx模块  
+**开发环境下无报错**  
+目前未找到解决方法，希望有大佬指点一下  
+**qq：2673926013**  
+**email：2673926013@qq.com**  
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-pnpm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-pnpm dev
-```
-
-### Compile and Minify for Production
-
-```sh
-pnpm build
-```

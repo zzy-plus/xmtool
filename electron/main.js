@@ -2,6 +2,7 @@ const {app, BrowserWindow, ipcMain, Menu, dialog} = require('electron')
 const path = require('path')
 const fs = require('fs')
 const {execSync, exec} = require('child_process');
+
 const {readFile, updateFile, writeFile} = require('./service/service')
 
 const env = ''
@@ -166,8 +167,6 @@ ipcMain.handle('event_save', (event, _props) => {
                 if (stdout.includes('Data contain a plain-text SII')) {
                     1 === 1;
                 } else {
-                    console.log(111)
-                    console.log(stdout)
                     console.log('File Decrypt Failed')
                     resolve({status: false, msg: '文件解密失败.'})
                 }
@@ -219,6 +218,26 @@ ipcMain.handle('event_openfolder', (__, savePath) => {
         resolve({status: true})
     })
 
+})
+
+ipcMain.handle('event_get_path',()=>{
+    return new Promise((resolve,reject)=>{
+        const command = 'reg query \"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\" /v Personal'
+
+        exec(command, (err,stdout, stderr)=>{
+            if(err){
+                console.log('Erro: ' + stderr)
+                resolve({ets_path: 'ets_path', ats_path: 'ats_path'})
+            }
+            const user_doc = stdout.split(' ').pop().replace(/\r\n/g,'')
+            console.log(stdout.split(' '))
+            console.log(user_doc)
+            const ets_path = user_doc + '\\Euro Truck Simulator 2\\profiles'
+            const ats_path = user_doc + '\\American Truck Simulator\\profiles'
+            console.log(ets_path)
+            resolve({ets_path: ets_path, ats_path: ats_path})
+        })
+    })
 })
 
 

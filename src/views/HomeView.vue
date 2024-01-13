@@ -5,9 +5,9 @@ import OptionView from "@/views/OptionView.vue";
 import {DocumentChecked, FolderOpened} from '@element-plus/icons-vue';
 
 const ipc = myApi.ipc
-const etsPath = myApi.ets_path
-const atsPath = myApi.ats_path
-let gamePath = etsPath //默认选择欧卡
+let etsPath = ''
+let atsPath = ''
+let gamePath = ''
 const radio_game = ref('ets')
 const onGameChange = (game) => {
   if (game === 'ets') {
@@ -80,8 +80,12 @@ const onSave = async () => {
   }
 }
 
-onMounted(() => {
-  getDocs()
+onMounted(async () => {
+  const res = await ipc.invoke('event_get_path','')
+  etsPath = res.ets_path
+  atsPath = res.ats_path
+  gamePath = etsPath //默认选择欧卡
+  await getDocs()
 
 })
 
