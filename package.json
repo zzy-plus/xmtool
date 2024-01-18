@@ -1,7 +1,8 @@
 {
   "name": "xmtool",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
+  "author": "qq2673926013",
   "main": "electron/main.js",
   "scripts": {
     "dev": "vite",

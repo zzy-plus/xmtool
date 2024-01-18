@@ -81,13 +81,19 @@ const onSave = async () => {
 }
 
 onMounted(async () => {
+  await initApp()
+})
+
+const initApp = async ()=>{
   const res = await ipc.invoke('event_get_path','')
   etsPath = res.ets_path
   atsPath = res.ats_path
+  document_selected.value = null
+  save_selected.value = null
   gamePath = etsPath //默认选择欧卡
+  console.log('[DEBUG]获取到的路径：', gamePath)
   await getDocs()
-
-})
+}
 
 const onDecrypt = async () => {
   if (!document_selected.value || !save_selected.value) return;
@@ -153,7 +159,7 @@ const open = () => {
           >
             <el-text class="mx-1" type="warning" size="large">
               <template #default>
-                <div style="font-size: medium; font-weight: bold">选&nbsp;择&nbsp;存&nbsp;档</div>
+                <div style="font-size: medium; font-weight: bold" @click="initApp">选&nbsp;择&nbsp;存&nbsp;档</div>
               </template>
             </el-text>
           </div>

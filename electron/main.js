@@ -20,6 +20,10 @@ const mainMenu = Menu.buildFromTemplate([
                 click: () => showDlg()
             }
         ]
+    },
+    {
+        label: '调试[DeBug]',
+        role: 'toggledevtools'
     }
 ])
 
@@ -52,7 +56,7 @@ const createWindow = () => {
 
     if (env === 'dev') {
         win.loadURL('http://localhost:5173/')
-        win.webContents.openDevTools()
+        //win.webContents.openDevTools()
     } else if (env === 'dev2') {
         win.loadFile('dist/index.html')
         // win.webContents.openDevTools()
@@ -230,11 +234,8 @@ ipcMain.handle('event_get_path',()=>{
                 resolve({ets_path: 'ets_path', ats_path: 'ats_path'})
             }
             const user_doc = stdout.split(' ').pop().replace(/\r\n/g,'')
-            console.log(stdout.split(' '))
-            console.log(user_doc)
             const ets_path = user_doc + '\\Euro Truck Simulator 2\\profiles'
             const ats_path = user_doc + '\\American Truck Simulator\\profiles'
-            console.log(ets_path)
             resolve({ets_path: ets_path, ats_path: ats_path})
         })
     })
