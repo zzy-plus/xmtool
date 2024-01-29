@@ -39,9 +39,11 @@ const showDlg = async () => {
 
     await dialog.showMessageBox(options);
 }
+
+let win
 const createWindow = () => {
-    const win = new BrowserWindow({
-        width: 800,
+    win = new BrowserWindow({
+        width: 800, //800
         height: 613,
         backgroundColor: '#ffffff',
         resizable: false,
@@ -131,19 +133,23 @@ ipcMain.handle('event_get_saves', (event, path) => {
                 // 处理错误
                 console.log('Error executing command:', error.message);
             }
-            let content = fs.readFileSync(info_sii_path, 'utf8')
-            let lines = content.split('\n')
-            for (const line of lines) {
+            try{
+                let content = fs.readFileSync(info_sii_path, 'utf8')
+                let lines = content.split('\n')
+                for (const line of lines) {
 
-                if (line.startsWith(' name:')) {
-                    let item = line.split(':')[1].trim().replace(/"/g, '')
-                    let save_name = decodeURIComponent(item.replace(/\\x/g, "%"));
-                    saves.push({
-                        save: file,
-                        save_name: save_name
-                    })
-                    break
+                    if (line.startsWith(' name:')) {
+                        let item = line.split(':')[1].trim().replace(/"/g, '')
+                        let save_name = decodeURIComponent(item.replace(/\\x/g, "%"));
+                        saves.push({
+                            save: file,
+                            save_name: save_name
+                        })
+                        break
+                    }
                 }
+            }catch (error){
+                console.log('Illegal Save and Ignored.')
             }
         }
         resolve(saves)
@@ -239,6 +245,24 @@ ipcMain.handle('event_get_path',()=>{
             resolve({ets_path: ets_path, ats_path: ats_path})
         })
     })
+})
+
+ipcMain.handle('event_man_select',()=>{
+
+    return new Promise((resolve,reject)=>{
+        dialog.showOpenDialog(win, {
+            properties: ['openDirectory']
+        }).then(result => {
+            if (!result.canceled) {
+                const path = result.filePaths[0]
+                resolve({status: true, path: path})
+            }
+        }).catch(err => {
+            resolve({status: false, path: ''})
+            console.log(err)
+        });
+    })
+
 })
 
 

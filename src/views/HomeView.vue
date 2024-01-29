@@ -1,5 +1,5 @@
 <script setup>
-import {ref, onMounted, watch} from "vue";
+import {ref, onMounted, computed} from "vue";
 import '@/assets/index.css'
 import OptionView from "@/views/OptionView.vue";
 import {DocumentChecked, FolderOpened} from '@element-plus/icons-vue';
@@ -9,7 +9,7 @@ let etsPath = ''
 let atsPath = ''
 let gamePath = ''
 const radio_game = ref('ets')
-const onGameChange = (game) => {
+const onGameChange = async (game) => {
   if (game === 'ets') {
     gamePath = etsPath
   } else {
@@ -21,7 +21,10 @@ const onGameChange = (game) => {
   document_opts.value = []
   save_opts.value = []
   //重新获取档案
-  getDocs()
+  const result = await getDocs()
+  if(!result){
+    dialogVisible.value = true
+  }
 }
 
 //两个选择器
@@ -35,10 +38,11 @@ const getDocs = async () => {
   if (!status) {
     document_opts.value = []
     ElMessage.error(msg)
+    return false
   } else {
     document_opts.value = data
+    return true
   }
-
 }
 const onChangeDoc = async (doc) => {
   document_selected.value = doc
@@ -92,7 +96,10 @@ const initApp = async ()=>{
   save_selected.value = null
   gamePath = etsPath //默认选择欧卡
   console.log('[DEBUG]获取到的路径：', gamePath)
-  await getDocs()
+  const result = await getDocs()
+  if(!result){
+    dialogVisible.value = true
+  }
 }
 
 const onDecrypt = async () => {
@@ -119,9 +126,45 @@ const open = () => {
   ipc.invoke('event_open', '')
 }
 
+const dialogVisible = ref(false)
+const selectPath = async ()=>{
+  const {status, path} = await ipc.invoke('event_man_select','')
+  if(!status) return;
+  gamePath = path + '\\profiles'
+  const result = await getDocs()
+  if(result){
+    dialogVisible.value = false
+  }
+}
+
+const ignored = ()=>{
+  dialogVisible.value = false
+}
+
+const title = computed(()=>{
+  return radio_game.value === 'ets'? '请手动选择欧卡2文档路径': '请手动选择美卡文档路径'
+})
+
 </script>
 
 <template>
+
+  <el-dialog
+  v-model="dialogVisible"
+  :title="title"
+  width="60%"
+  :close-on-click-modal="false"
+  :show-close="false"
+  >
+    <span>在默认位置寻找文档时出现问题，请手动选择：</span><br/>
+    <span>
+      示例：C:\Users\username\Documents\{{radio_game === 'ets'? 'Euro Truck Simulator 2': 'American Truck Simulator'}}
+    </span>
+    <template #footer>
+      <el-button type="primary" @click="selectPath">浏览..</el-button>
+      <el-button type="danger" @click="ignored">保持忽略</el-button>
+    </template>
+  </el-dialog>
 
   <el-row :gutter="0">
     <el-col :span="10">
