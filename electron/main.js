@@ -24,21 +24,17 @@ const mainMenu = Menu.buildFromTemplate([
     {
         label: '调试[DeBug]',
         role: 'toggledevtools'
+    },
+    {
+        label: '工具',
+        submenu: [
+            {
+                label: '启用飞行',
+                click: ()=> enableFlyMode()
+            }
+        ]
     }
 ])
-
-const showDlg = async () => {
-    const options = {
-        type: 'info',
-        title: '关于这款软件',
-        message: '开源地址：https://github.com/zzy-plus/xmtool\n' +
-            '车队交流群：685297275\n' +
-            '@zzy77',
-        buttons: ['关闭']
-    };
-
-    await dialog.showMessageBox(options);
-}
 
 let win
 const createWindow = () => {
@@ -70,6 +66,36 @@ const createWindow = () => {
     Menu.setApplicationMenu(mainMenu)
     //在这里设置标题无效，需要去index.html修改
     win.setTitle('XM修改工具')
+}
+
+const showDlg = async () => {
+    const options = {
+        type: 'info',
+        title: '关于这款软件',
+        message: '开源地址：https://github.com/zzy-plus/xmtool\n' +
+            '车队交流群：685297275\n' +
+            '@zzy77',
+        buttons: ['关闭']
+    };
+
+    await dialog.showMessageBox(options);
+}
+
+const enableFlyMode = ()=>{
+    const command = 'FlyingMode.exe'
+    try {
+        execSync(command)
+        console.log('Flying Mode Enabled.')
+        const options = {
+            type: 'info',
+            title: '提示',
+            message: '飞行模式已启用',
+            buttons: ['知道了']
+        };
+        dialog.showMessageBox(options);
+    }catch (error){
+        console.log('flying mode Err: ', error.message)
+    }
 }
 
 app.whenReady().then(() => {
