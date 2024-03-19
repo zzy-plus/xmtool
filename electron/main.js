@@ -2,8 +2,8 @@ const {app, BrowserWindow, ipcMain, Menu, dialog} = require('electron')
 const path = require('path')
 const fs = require('fs')
 const {execSync, exec} = require('child_process');
-
-const {readFile, updateFile, writeFile} = require('./service/service')
+const {readFile, updateFile, writeFile, enableFlyMode, setKeys} = require('./service/service')
+const keymap= require('./service/keymap')
 
 const env = ''
 
@@ -29,8 +29,8 @@ const mainMenu = Menu.buildFromTemplate([
         label: '工具',
         submenu: [
             {
-                label: '启用飞行',
-                click: ()=> enableFlyMode()
+                label: '飞行模式',
+                click: ()=> showFlyModeDlg()
             }
         ]
     }
@@ -81,21 +81,25 @@ const showDlg = async () => {
     await dialog.showMessageBox(options);
 }
 
-const enableFlyMode = ()=>{
-    const command = 'FlyingMode.exe'
-    try {
-        execSync(command)
-        console.log('Flying Mode Enabled.')
-        const options = {
-            type: 'info',
-            title: '提示',
-            message: '飞行模式已启用',
-            buttons: ['知道了']
-        };
-        dialog.showMessageBox(options);
-    }catch (error){
-        console.log('flying mode Err: ', error.message)
-    }
+// const enableFlyMode = ()=>{
+//     const command = 'FlyingMode.exe'
+//     try {
+//         execSync(command)
+//         console.log('Flying Mode Enabled.')
+//         const options = {
+//             type: 'info',
+//             title: '提示',
+//             message: '飞行模式已启用',
+//             buttons: ['知道了']
+//         };
+//         dialog.showMessageBox(options);
+//     }catch (error){
+//         console.log('flying mode Err: ', error.message)
+//     }
+// }
+
+const showFlyModeDlg = ()=>{
+    win.webContents.send('cmd_show_flymode_dlg', '')
 }
 
 app.whenReady().then(() => {
@@ -231,6 +235,11 @@ ipcMain.handle('event_open', () => {
     execSync(`start ${urlToOpen}`)
 })
 
+ipcMain.handle('event_keys_map', ()=>{
+    const urlToOpen = 'https://www.bilibili.com/read/cv33293743/?jump_opus=1'
+    execSync(`start ${urlToOpen}`)
+})
+
 ipcMain.handle('event_decrypt', (__, savePath) => {
     const filePath = savePath + '\\game.sii'
     return new Promise((resolve, reject) => {
@@ -289,6 +298,30 @@ ipcMain.handle('event_man_select',()=>{
         });
     })
 
+})
+
+ipcMain.handle('event_enable_fly', (event, params)=>{
+
+    const {gamePath, keys} = JSON.parse(params)
+
+
+    return new Promise((resolve,reject)=>{
+
+        let flag = enableFlyMode(gamePath.replace('profiles',''))
+        if(!flag) resolve({status: false, msg: '开启飞行模式失败！'})
+
+        const profiles = fs.readdirSync(gamePath)
+        for (const profile of profiles) {
+            let controls_sii_path = gamePath + '\\' + profile + '\\controls.sii'
+            try {
+                setKeys(controls_sii_path, keys)
+            }catch (e){
+                console.log(e.message)
+            }
+
+        }
+        resolve({status: true, msg: '设置成功！'})
+    })
 })
 
 

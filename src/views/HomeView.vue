@@ -62,7 +62,8 @@ const props = ref({
   garage: false,
   truckVendors: false,
   fixAll: false,
-  fuelling: false
+  fuelling: false,
+  mass: false
 })
 const handleProps = (newProps) => {
   props.value = newProps
@@ -144,6 +145,36 @@ const ignored = ()=>{
 const title = computed(()=>{
   return radio_game.value === 'ets'? '请手动选择欧卡2文档路径': '请手动选择美卡文档路径'
 })
+
+const keyset = ref({
+  fwd: '',
+  back: '',
+  left: '',
+  right: '',
+  up: '',
+  down: ''
+})
+const flyDlgShow = ref(false)
+myApi.ipcListen('cmd_show_flymode_dlg',(e,params)=>{
+  flyDlgShow.value = true
+})
+
+const flyModeConfirm = async ()=>{
+  const {status, msg} = await ipc.invoke('event_enable_fly',JSON.stringify({gamePath: gamePath, keys: keyset.value}))
+  flyDlgShow.value = false
+  if(status){
+    ElMessage({
+      message: msg,
+      type: 'success'
+    })
+  }else {
+    ElMessage.error(msg)
+  }
+}
+
+const openKeyMap = ()=>{
+  ipc.invoke('event_keys_map', '')
+}
 
 </script>
 
@@ -274,5 +305,71 @@ const title = computed(()=>{
     </el-col>
 
   </el-row>
+
+
+  <el-dialog
+      v-model="flyDlgShow"
+      title="飞行模式按键设置"
+      width="400"
+      style="position: relative"
+  >
+    <div style="display: flex; flex-direction: column; justify-content: space-around;
+          height: 230px;width: 200px; position: relative; left: 20px">
+      <div>
+        <span>前：</span>
+        <el-input v-model="keyset.fwd" style="width: 70px" placeholder="请输入" />
+      </div>
+      <div>
+        <span>后：</span>
+        <el-input v-model="keyset.back" style="width: 70px" placeholder="请输入" />
+      </div>
+      <div>
+        <span>左：</span>
+        <el-input v-model="keyset.left" style="width: 70px" placeholder="请输入" />
+      </div>
+      <div>
+        <span>右：</span>
+        <el-input v-model="keyset.right" style="width: 70px" placeholder="请输入" />
+      </div>
+      <div>
+        <span>升：</span>
+        <el-input v-model="keyset.up" style="width: 70px" placeholder="请输入" />
+      </div>
+      <div>
+        <span>降：</span>
+        <el-input v-model="keyset.down" style="width: 70px" placeholder="请输入" />
+      </div>
+
+    </div>
+    <template #footer>
+      <div style="height: 35px">
+        <el-button @click="flyDlgShow = false">取消</el-button>
+        <el-button type="primary" @click="flyModeConfirm">
+          确定
+        </el-button>
+      </div>
+    </template>
+
+    <div style="height: 220px; width: 210px; position: absolute; left: 160px; top:90px; border: 1px #56b0c5 solid; padding: 5px">
+      <div style="color: black; font-size: large; font-weight: bold"> 说明: </div>
+      <div>不知道支持哪些键？点这里👇</div>
+      <div style="width: 100%; height: 55px; background-color: #c6e2ff; cursor: pointer; border-radius: 10px;" @click="openKeyMap">
+        <div style="position: relative; left: 22px; top: 15px; font-weight: bold; color: #c45656;">点击此处查看按键映射表</div>
+      </div>
+      <div style="color: #1f1d1d; margin-top: 10px">
+        <span style="color: darkorange; font-weight: bolder">▲</span>
+        飞行模式只需开启
+        <span style="color: darkorange; font-weight: bold">一次</span>
+        即可对所有存档
+        <span style="color: darkorange; font-weight: bold">永久生效</span>。
+      </div>
+      <div>
+        <span style="color: darkorange; font-weight: bold">N:</span>
+        新建
+        <span style="color: darkorange; font-weight: bold">档案</span>
+        后，需要再次设置飞行按键！否则新档案不生效。
+      </div>
+    </div>
+  </el-dialog>
 
 </template>

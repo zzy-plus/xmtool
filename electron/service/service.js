@@ -1,5 +1,5 @@
 const fs = require('fs')
-
+const keymap = require('./keymap')
 
 //读取文件内容
 
@@ -14,7 +14,7 @@ const readFile = (filePath)=>{
 
 //修改文件数据
 const updateFile = (data, props)=>{
-    const {money, level, skill, city, garage, truckVendors, fixAll, fuelling} = props
+    const {money, level, skill, city, garage, truckVendors, fixAll, fuelling, mass} = props
     const fileArr = data.split('\r\n')
     let index = 0
     let hqCity = ''
@@ -44,6 +44,10 @@ const updateFile = (data, props)=>{
             if (truckVendors) {
                 dealerCities.add(line.split('.')[3])
             }
+        }
+
+        if(mass && line.startsWith(' cargo_mass:')){
+            fileArr[index] = line.replace(/cargo_mass: [0-9]+/, 'cargo_mass: 1000')
         }
 
         if(money && line.startsWith(' money_account')){
@@ -283,10 +287,82 @@ const writeFile = (filePath, data) =>{
     }
 }
 
+//开启飞行
+const enableFlyMode = (gamePath)=>{
+
+    const configPath = gamePath + 'config.cfg'
+    try{
+        const lines = fs.readFileSync(configPath, 'utf8').split('\r\n')
+        if(lines[0].includes('#modified')){
+            console.log('Fly Mode Is Already Enabled.')
+            return true
+        }
+        for (let i = 1; i < lines.length; i++){
+            if(lines[i].startsWith('uset g_developer ')){
+                lines[i] = lines[i].replace('0', '1')
+            }
+            if(lines[i].startsWith('uset g_console ')){
+                lines[i] = lines[i].replace('0', '1')
+                break
+            }
+        }
+        lines[0] += ' #modified'
+        fs.writeFileSync(configPath,lines.join('\r\n'),'utf8')
+        console.log('Success to Enable Fly Mode!')
+        return true
+    }catch (e){
+        console.log(e.message)
+        return false
+    }
+}
+
+//修改飞行模式按键
+const setKeys = (controlsPath, keys)=>{
+
+    const lines = fs.readFileSync(controlsPath, 'utf8').split('\r\n')
+    for (let i = 0; i<lines.length; i++){
+        if(lines[i].includes('dbgfwd') && keys['fwd'] !== ''){
+            const index1 = lines[i].indexOf('\`',0)
+            const code = keymap[keys['fwd'].toLowerCase()]
+            if(!code) continue;
+            lines[i] = lines[i].substring(0, index1) + `\`${code}?0\`\"`
+        }else if(lines[i].includes('dbgback') && keys['back'] !== ''){
+            const index1 = lines[i].indexOf('\`',0)
+            const code = keymap[keys['back'].toLowerCase()]
+            if(!code) continue;
+            lines[i] = lines[i].substring(0, index1) + `\`${code}?0\`\"`
+        }else if(lines[i].includes('dbgleft') && keys['left'] !== ''){
+            const index1 = lines[i].indexOf('\`',0)
+            const code = keymap[keys['left'].toLowerCase()]
+            if(!code) continue;
+            lines[i] = lines[i].substring(0, index1) + `\`${code}?0\`\"`
+        }else if(lines[i].includes('dbgright') && keys['right'] !== ''){
+            const index1 = lines[i].indexOf('\`',0)
+            const code = keymap[keys['right'].toLowerCase()]
+            if(!code) continue;
+            lines[i] = lines[i].substring(0, index1) + `\`${code}?0\`\"`
+        }else if(lines[i].includes('dbgup') && keys['up'] !== ''){
+            const index1 = lines[i].indexOf('\`',0)
+            const code = keymap[keys['up'].toLowerCase()]
+            if(!code) continue;
+            lines[i] = lines[i].substring(0, index1) + `\`${code}?0\`\"`
+        }else if(lines[i].includes('dbgdown') && keys['down'] !== ''){
+            const index1 = lines[i].indexOf('\`',0)
+            const code = keymap[keys['down'].toLowerCase()]
+            if(!code) continue;
+            lines[i] = lines[i].substring(0, index1) + `\`${code}?0\`\"`
+            break
+        }
+    }
+    fs.writeFileSync(controlsPath, lines.join('\r\n'), 'utf8')
+}
+
 
 module.exports = {
     readFile,
     updateFile,
-    writeFile
+    writeFile,
+    enableFlyMode,
+    setKeys
 }
 

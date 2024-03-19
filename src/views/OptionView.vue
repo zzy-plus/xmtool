@@ -12,7 +12,8 @@ const props = ref({
   garage: false,
   truckVendors: false,
   fixAll: false,
-  fuelling: false
+  fuelling: false,
+  mass: false
 })
 
 watch(props,(newProps)=>{
@@ -111,6 +112,13 @@ watch(props,(newProps)=>{
               </el-tag>
             </template>
           </el-checkbox>
+          <el-checkbox v-model="props.mass" size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
+            <template #default>
+              <el-tag effect="dark" type="warning">
+                <span style="font-weight: bold; font-size: medium" >货物改为一吨</span>
+              </el-tag>
+            </template>
+          </el-checkbox>
         </div>
       </el-col>
 
@@ -142,6 +150,13 @@ watch(props,(newProps)=>{
             <template #default>
               <el-tag effect="dark" type="warning">
                 <span style="font-weight: bold; font-size: medium" >全部车辆满油</span>
+              </el-tag>
+            </template>
+          </el-checkbox>
+          <el-checkbox size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
+            <template #default>
+              <el-tag effect="dark" type="warning">
+                <span style="font-weight: bold; font-size: medium" >强迫症要对称</span>
               </el-tag>
             </template>
           </el-checkbox>
