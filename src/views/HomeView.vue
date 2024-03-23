@@ -3,6 +3,9 @@ import {ref, onMounted, computed} from "vue";
 import '@/assets/index.css'
 import OptionView from "@/views/OptionView.vue";
 import {DocumentChecked, FolderOpened} from '@element-plus/icons-vue';
+import UpdateView from "@/views/UpdateView.vue";
+
+const _version = '0.0.0'
 
 const ipc = myApi.ipc
 let etsPath = ''
@@ -87,6 +90,7 @@ const onSave = async () => {
 
 onMounted(async () => {
   await initApp()
+  getUpdateInfo()
 })
 
 const initApp = async ()=>{
@@ -101,6 +105,25 @@ const initApp = async ()=>{
   if(!result){
     dialogVisible.value = true
   }
+}
+
+const getUpdateInfo = ()=>{
+  fetch('http://api.example.com/data')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('请求失败：' + response.status)
+        }
+        return response.json()
+      })
+      .then(data => {
+        const updateInfo = JSON.stringify(data)
+        const version = updateInfo['version']
+        const info = updateInfo['info']
+        if(_version < version){
+
+        }
+      })
+      .catch(error => {})
 }
 
 const onDecrypt = async () => {
@@ -229,7 +252,7 @@ const openKeyMap = ()=>{
               borderRadius: `var(--el-border-radius-small)`,
               boxShadow: `var(--el-box-shadow-light)`
             }"
-              style="display: flex; flex-direction: column ;align-items: center; padding: 3px"
+              style="display: flex; flex-direction: column ;align-items: center; padding: 3px; cursor: pointer"
           >
             <el-text class="mx-1" type="warning" size="large">
               <template #default>
@@ -371,5 +394,7 @@ const openKeyMap = ()=>{
       </div>
     </div>
   </el-dialog>
+
+  <UpdateView />
 
 </template>

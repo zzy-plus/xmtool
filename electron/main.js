@@ -5,8 +5,9 @@ const {execSync, exec} = require('child_process');
 const {readFile, updateFile, writeFile, enableFlyMode, setKeys} = require('./service/service')
 const keymap= require('./service/keymap')
 
-const env = ''
+const env = 'dev'
 
+let guideUrl = 'https://www.baidu.com'
 const mainMenu = Menu.buildFromTemplate([
     {
         label: '菜单',
@@ -22,17 +23,26 @@ const mainMenu = Menu.buildFromTemplate([
         ]
     },
     {
-        label: '调试[DeBug]',
-        role: 'toggledevtools'
-    },
-    {
         label: '工具',
         submenu: [
             {
                 label: '飞行模式',
                 click: ()=> showFlyModeDlg()
+            },
+            {
+                label: '调试[DeBug]',
+                role: 'toggledevtools'
             }
         ]
+    },
+    {
+      label: '帮助',
+      submenu: [
+          {
+              label: '使用教程[视频]',
+              click: ()=> {execSync(`start ${guideUrl}`)}
+          }
+      ]
     }
 ])
 
