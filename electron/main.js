@@ -2,10 +2,10 @@ const {app, BrowserWindow, ipcMain, Menu, dialog} = require('electron')
 const path = require('path')
 const fs = require('fs')
 const {execSync, exec} = require('child_process');
-const {readFile, updateFile, writeFile, enableFlyMode, setKeys} = require('./service/service')
+const {readFile, updateFile, writeFile, enableFlyMode, setKeys, getGuideUrl} = require('./service/service')
 const keymap= require('./service/keymap')
 
-const env = 'dev'
+const env = ''
 
 let guideUrl = 'https://www.baidu.com'
 const mainMenu = Menu.buildFromTemplate([
@@ -112,8 +112,12 @@ const showFlyModeDlg = ()=>{
     win.webContents.send('cmd_show_flymode_dlg', '')
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
     createWindow()
+    const res = await getGuideUrl()
+    if(res !== 0){
+        guideUrl = res
+    }
 })
 
 app.on('window-all-closed', () => {
@@ -334,5 +338,15 @@ ipcMain.handle('event_enable_fly', (event, params)=>{
     })
 })
 
+
+ipcMain.handle('event_get_new_version',()=>{
+    try{
+        const url = 'https://gitee.com/error-bear/xmtool-download/releases'
+        execSync(`start ${url}`)
+    }catch (e) {
+        console.log(e.message)
+    }
+    return 0
+})
 
 

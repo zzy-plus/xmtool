@@ -5,7 +5,7 @@ import OptionView from "@/views/OptionView.vue";
 import {DocumentChecked, FolderOpened} from '@element-plus/icons-vue';
 import UpdateView from "@/views/UpdateView.vue";
 
-const _version = '0.0.0'
+const _version = '0.2.7'
 
 const ipc = myApi.ipc
 let etsPath = ''
@@ -108,7 +108,9 @@ const initApp = async ()=>{
 }
 
 const getUpdateInfo = ()=>{
-  fetch('http://api.example.com/data')
+  fetch('http://121.37.222.191:8020/xmtool/update', {
+        method: 'GET'
+      })
       .then(response => {
         if (!response.ok) {
           throw new Error('请求失败：' + response.status)
@@ -116,14 +118,14 @@ const getUpdateInfo = ()=>{
         return response.json()
       })
       .then(data => {
-        const updateInfo = JSON.stringify(data)
-        const version = updateInfo['version']
-        const info = updateInfo['info']
-        if(_version < version){
-
+        updateInfo.value = {...data, 'curVersion': _version}
+        if(_version < updateInfo.value.version){
+          updateDlgShow.value = true
         }
       })
-      .catch(error => {})
+      .catch(error => {
+        console.log(error.message)
+      })
 }
 
 const onDecrypt = async () => {
@@ -198,6 +200,10 @@ const flyModeConfirm = async ()=>{
 const openKeyMap = ()=>{
   ipc.invoke('event_keys_map', '')
 }
+
+//控制更新对话框是否显示
+const updateDlgShow = ref(false)
+const updateInfo = ref({})
 
 </script>
 
@@ -395,6 +401,6 @@ const openKeyMap = ()=>{
     </div>
   </el-dialog>
 
-  <UpdateView />
+  <UpdateView :dlgShow="updateDlgShow" @done="updateDlgShow = false" :updateInfo="updateInfo"/>
 
 </template>

@@ -357,12 +357,32 @@ const setKeys = (controlsPath, keys)=>{
     fs.writeFileSync(controlsPath, lines.join('\r\n'), 'utf8')
 }
 
+const getGuideUrl = ()=>{
+    return new Promise((resolve, reject)=>{
+        fetch('http://121.37.222.191:8020/get')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('请求失败：' + response.status)
+                }
+                return response.json()
+            })
+            .then(data => {
+                resolve(data.xmToolGuideUrl)
+            })
+            .catch(error => {
+                console.log(error.message)
+                resolve(0)
+            })
+    })
+}
+
 
 module.exports = {
     readFile,
     updateFile,
     writeFile,
     enableFlyMode,
-    setKeys
+    setKeys,
+    getGuideUrl
 }
 
