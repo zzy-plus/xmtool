@@ -2,8 +2,10 @@ const {app, BrowserWindow, ipcMain, Menu, dialog} = require('electron')
 const path = require('path')
 const fs = require('fs')
 const {execSync, exec} = require('child_process');
-const {readFile, updateFile, writeFile, enableFlyMode, setKeys, getGuideUrl} = require('./service/service')
-const keymap= require('./service/keymap')
+const {readFile, updateFile, writeFile,
+    enableFlyMode, setKeys, getGuideUrl,
+    saveKeySet, readKeySet } = require('./service/service')
+
 
 const env = ''
 
@@ -91,22 +93,6 @@ const showDlg = async () => {
     await dialog.showMessageBox(options);
 }
 
-// const enableFlyMode = ()=>{
-//     const command = 'FlyingMode.exe'
-//     try {
-//         execSync(command)
-//         console.log('Flying Mode Enabled.')
-//         const options = {
-//             type: 'info',
-//             title: '提示',
-//             message: '飞行模式已启用',
-//             buttons: ['知道了']
-//         };
-//         dialog.showMessageBox(options);
-//     }catch (error){
-//         console.log('flying mode Err: ', error.message)
-//     }
-// }
 
 const showFlyModeDlg = ()=>{
     win.webContents.send('cmd_show_flymode_dlg', '')
@@ -317,7 +303,7 @@ ipcMain.handle('event_man_select',()=>{
 ipcMain.handle('event_enable_fly', (event, params)=>{
 
     const {gamePath, keys} = JSON.parse(params)
-
+    saveKeySet(keys)
 
     return new Promise((resolve,reject)=>{
 
@@ -335,6 +321,14 @@ ipcMain.handle('event_enable_fly', (event, params)=>{
 
         }
         resolve({status: true, msg: '设置成功！'})
+    })
+})
+
+ipcMain.handle('event_read_keys',()=>{
+    return new Promise((resolve,reject)=>{
+
+        const keys = readKeySet()
+        resolve({keys: keys})
     })
 })
 

@@ -5,7 +5,7 @@ import OptionView from "@/views/OptionView.vue";
 import {DocumentChecked, FolderOpened} from '@element-plus/icons-vue';
 import UpdateView from "@/views/UpdateView.vue";
 
-const _version = '0.2.7'
+const _version = '0.2.8'
 
 const ipc = myApi.ipc
 let etsPath = ''
@@ -180,13 +180,28 @@ const keyset = ref({
   down: ''
 })
 const flyDlgShow = ref(false)
-myApi.ipcListen('cmd_show_flymode_dlg',(e,params)=>{
+myApi.ipcListen('cmd_show_flymode_dlg',async (e,params)=>{
+  const {keys} = await ipc.invoke('event_read_keys', '')
+  keyset.value = keys
   flyDlgShow.value = true
 })
 
 const flyModeConfirm = async ()=>{
-  const {status, msg} = await ipc.invoke('event_enable_fly',JSON.stringify({gamePath: gamePath, keys: keyset.value}))
   flyDlgShow.value = false
+  let {status, msg} = await ipc.invoke('event_enable_fly',
+      JSON.stringify({gamePath: etsPath, keys: keyset.value}))
+  msg = '欧卡：' + msg
+  if(status){
+    ElMessage({
+      message: msg,
+      type: 'success'
+    })
+  }else {
+    ElMessage.error(msg)
+  }
+  ({status, msg} = await ipc.invoke('event_enable_fly',
+      JSON.stringify({gamePath: atsPath, keys: keyset.value})))
+  msg = '美卡：' + msg
   if(status){
     ElMessage({
       message: msg,
@@ -372,6 +387,9 @@ const updateInfo = ref({})
     </div>
     <template #footer>
       <div style="height: 35px">
+        <span style="font-size: 16px; font-weight: bold;color: red">
+          这里会同时设置欧卡2和美卡！
+        </span>
         <el-button @click="flyDlgShow = false">取消</el-button>
         <el-button type="primary" @click="flyModeConfirm">
           确定

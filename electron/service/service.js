@@ -1,5 +1,6 @@
 const fs = require('fs')
 const keymap = require('./keymap')
+const os = require('os')
 
 //读取文件内容
 
@@ -293,20 +294,17 @@ const enableFlyMode = (gamePath)=>{
     const configPath = gamePath + 'config.cfg'
     try{
         const lines = fs.readFileSync(configPath, 'utf8').split('\r\n')
-        if(lines[0].includes('#modified')){
-            console.log('Fly Mode Is Already Enabled.')
-            return true
-        }
+
         for (let i = 1; i < lines.length; i++){
-            if(lines[i].startsWith('uset g_developer ')){
+            if(lines[i].trim().startsWith('uset g_developer ')){
                 lines[i] = lines[i].replace('0', '1')
             }
-            if(lines[i].startsWith('uset g_console ')){
+            if(lines[i].trim().startsWith('uset g_console ')){
                 lines[i] = lines[i].replace('0', '1')
                 break
             }
         }
-        lines[0] += ' #modified'
+
         fs.writeFileSync(configPath,lines.join('\r\n'),'utf8')
         console.log('Success to Enable Fly Mode!')
         return true
@@ -376,6 +374,32 @@ const getGuideUrl = ()=>{
     })
 }
 
+//缓存按键设置
+const saveKeySet = (keys)=>{
+    const homedir = os.homedir();
+    const keysFile = homedir + '\\AppData\\Roaming\\xmtool\\keys.json'
+    fs.writeFileSync(keysFile,JSON.stringify(keys),'utf8')
+}
+
+//读取按键设置
+const readKeySet = ()=>{
+    const homedir = os.homedir();
+    const keysFile = homedir + '\\AppData\\Roaming\\xmtool\\keys.json'
+    if(fs.existsSync(keysFile)){
+        const content = fs.readFileSync(keysFile,'utf8')
+        const keys = JSON.parse(content)
+        return keys
+    }
+    return {
+        fwd: 'num8',
+        back: 'num5',
+        left: 'num4',
+        right: 'num6',
+        up: 'num9',
+        down: 'num3'
+    }
+}
+
 
 module.exports = {
     readFile,
@@ -383,6 +407,8 @@ module.exports = {
     writeFile,
     enableFlyMode,
     setKeys,
-    getGuideUrl
+    getGuideUrl,
+    saveKeySet,
+    readKeySet
 }
 
