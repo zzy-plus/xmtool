@@ -48,7 +48,7 @@ const updateFile = (data, props)=>{
         }
 
         if(mass && line.startsWith(' cargo_mass:')){
-            fileArr[index] = line.replace(/cargo_mass: [0-9]+/, 'cargo_mass: 1000')
+            fileArr[index] = line.replace(/cargo_mass: &*[0-9a-z]+/, 'cargo_mass: 1000')
         }
 
         if(money && line.startsWith(' money_account')){
