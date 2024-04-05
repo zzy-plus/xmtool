@@ -1,11 +1,11 @@
 <script setup>
-import {ref, onMounted, computed} from "vue";
+import {ref, onMounted, computed, watch} from "vue";
 import '@/assets/index.css'
 import OptionView from "@/views/OptionView.vue";
 import {DocumentChecked, FolderOpened} from '@element-plus/icons-vue';
 import UpdateView from "@/views/UpdateView.vue";
 
-const _version = '0.2.8'
+const _version = '0.2.9'
 
 const ipc = myApi.ipc
 let etsPath = ''
@@ -66,15 +66,33 @@ const props = ref({
   truckVendors: false,
   fixAll: false,
   fuelling: false,
-  mass: false
+  mass: false,
+  engine: false
 })
 const handleProps = (newProps) => {
   props.value = newProps
 }
 
+const licensePlateDlgShow = ref(false)
+watch(()=> props.value.engine, (val)=>{
+  if (val){
+    //显示dlg
+    licensePlateDlgShow.value = true
+  }
+})
+const licensePlate = ref('')
+const confirmLicensePlate = ()=>{
+  if(licensePlate.value.trim().length === 0){
+    props.value.engine = false
+    ElMessage.error("车牌不能为空！")
+  }
+  licensePlateDlgShow.value = false
+}
+
+
 const onSave = async () => {
   const savePath = gamePath + '\\' + document_selected.value + '\\save\\' + save_selected.value
-  const val = JSON.stringify({...props.value, savePath: savePath})
+  const val = JSON.stringify({...props.value, savePath: savePath, licensePlate: licensePlate.value.trim()})
   if (document_selected.value && save_selected.value) {
     const {status, msg} = await ipc.invoke('event_save', val)
     if (status) {
@@ -420,5 +438,23 @@ const updateInfo = ref({})
   </el-dialog>
 
   <UpdateView :dlgShow="updateDlgShow" @done="updateDlgShow = false" :updateInfo="updateInfo"/>
+
+  <el-dialog
+      v-model="licensePlateDlgShow"
+      title="修改引擎马力需要填入车牌"
+      width="300"
+      :show-close="false"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+  >
+    <el-input v-model="licensePlate" placeholder="一定要填完整的车牌！区分大小写！"/>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button type="primary" @click="confirmLicensePlate">
+          确认
+        </el-button>
+      </div>
+    </template>
+  </el-dialog>
 
 </template>

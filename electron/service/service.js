@@ -2,8 +2,9 @@ const fs = require('fs')
 const keymap = require('./keymap')
 const os = require('os')
 
-//读取文件内容
+const engine_750 = "/def/vehicle/truck/volvo.fh16_2012/engine/d16g750.sii"
 
+//读取文件内容
 const readFile = (filePath)=>{
     try {
         return fs.readFileSync(filePath,'utf8')
@@ -14,8 +15,8 @@ const readFile = (filePath)=>{
 }
 
 //修改文件数据
-const updateFile = (data, props)=>{
-    const {money, level, skill, city, garage, truckVendors, fixAll, fuelling, mass} = props
+const updateFile = (data, props, licensePlate)=>{
+    const {money, level, skill, city, garage, truckVendors, fixAll, fuelling, mass, engine} = props
     const fileArr = data.split('\r\n')
     let index = 0
     let hqCity = ''
@@ -33,6 +34,7 @@ const updateFile = (data, props)=>{
     const unlockedDealers = []
     let unlockedDealersIndex = 0
 
+    let engine_flag = false
 
 
     for (const line of fileArr) {
@@ -49,6 +51,15 @@ const updateFile = (data, props)=>{
 
         if(mass && line.startsWith(' cargo_mass:')){
             fileArr[index] = line.replace(/cargo_mass: &*[0-9a-z]+/, 'cargo_mass: 1000')
+        }
+
+        if(engine && line.startsWith(' license_plate') && line.includes(licensePlate.trim())){
+            engine_flag = true
+        }
+
+        if(engine_flag && line.includes('engine')){
+            fileArr[index] = ' data_path: \"/def/vehicle/truck/volvo.fh16_2012/engine/d16g750.sii\"'
+            engine_flag = false
         }
 
         if(money && line.startsWith(' money_account')){

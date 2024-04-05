@@ -188,7 +188,7 @@ ipcMain.handle('event_get_saves', (event, path) => {
 
 ipcMain.handle('event_save', (event, _props) => {
     const props = JSON.parse(_props)
-    const {savePath} = props
+    const {savePath, licensePlate} = props
     //console.log(props)
 
     return new Promise((resolve, reject) => {
@@ -216,7 +216,7 @@ ipcMain.handle('event_save', (event, _props) => {
             const fileData = readFile(filePath)
             if (!fileData) resolve({status: false, msg: '文件读取失败'})
 
-            const newFileData = updateFile(fileData, props)
+            const newFileData = updateFile(fileData, props, licensePlate)
 
             const status = writeFile(filePath, newFileData)
             if (status) {
