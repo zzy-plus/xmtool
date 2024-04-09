@@ -17,6 +17,7 @@ const readFile = (filePath)=>{
 //修改文件数据
 const updateFile = (data, props, licensePlate)=>{
     const {money, level, skill, city, garage, truckVendors, fixAll, fuelling, mass, engine} = props
+    let __engine = engine   //分身？
     const fileArr = data.split('\r\n')
     let index = 0
     let hqCity = ''
@@ -53,13 +54,30 @@ const updateFile = (data, props, licensePlate)=>{
             fileArr[index] = line.replace(/cargo_mass: &*[0-9a-z]+/, 'cargo_mass: 1000')
         }
 
-        if(engine && line.startsWith(' license_plate') && line.includes(licensePlate.trim())){
-            engine_flag = true
+        //匹配车牌
+        if(__engine && line.startsWith(' license_plate:')){
+
+            //这样理论上效率高，但是不保险
+            // const plates = licensePlate.trim().split(' ')
+            // const regex = new RegExp(plates.join('.*'))
+            //稳妥做法：
+            const plates = licensePlate.replace(/\s/g, '')
+            let regex = ''
+            for (const c of plates) {
+                regex += `${c}.*`
+            }
+            const match = line.match(regex)
+            if(match){
+                engine_flag = true
+                console.log("matched line: ", match[0])
+            }
         }
 
+        //匹配到车牌才开始检索要修改的行，修改完屏蔽engine选项防止多次修改
         if(engine_flag && line.includes('engine')){
             fileArr[index] = ' data_path: \"/def/vehicle/truck/volvo.fh16_2012/engine/d16g750.sii\"'
             engine_flag = false
+            __engine = false
         }
 
         if(money && line.startsWith(' money_account')){

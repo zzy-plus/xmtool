@@ -447,13 +447,12 @@ const updateInfo = ref({})
       :close-on-click-modal="false"
       :close-on-press-escape="false"
   >
+    <span>可忽略空格:</span>
     <el-input v-model="licensePlate" placeholder="一定要填完整的车牌！区分大小写！"/>
     <template #footer>
-      <div class="dialog-footer">
-        <el-button type="primary" @click="confirmLicensePlate">
-          确认
-        </el-button>
-      </div>
+      <el-button type="primary" @click="confirmLicensePlate">
+        确认
+      </el-button>
     </template>
   </el-dialog>
 
