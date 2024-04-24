@@ -432,8 +432,8 @@ const readKeySet = ()=>{
 
 const flyTeleport = (camsTxtPath, profilePath)=>{
     const content = fs.readFileSync(camsTxtPath,'utf8')
-    let lines = content.split('\n')
-    let line = lines[lines.length - 1]
+    let lines = content.split('\r\n')
+    let line = lines[lines.length - 2]
 
     let location = line.split(' ; ')[1]
     location = location.replaceAll(';', ',')
