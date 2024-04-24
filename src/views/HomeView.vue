@@ -247,6 +247,10 @@ const teleport = ()=>{
       camsTxtPath: camsTxtPath,
       profilePath: profilePath
     }))
+    ElMessage({
+      type: 'success',
+      message: '传送成功！'
+    })
   }
 }
 

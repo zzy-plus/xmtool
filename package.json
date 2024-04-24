@@ -54,7 +54,7 @@
       }
     ],
     "win": {
-      "target": "portable",
+      "target": "nsis",
       "icon": "src/assets/favicon.ico"
     },
     "nsis": {
