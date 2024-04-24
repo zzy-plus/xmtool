@@ -1,10 +1,10 @@
 const {app, BrowserWindow, ipcMain, Menu, dialog} = require('electron')
 const path = require('path')
 const fs = require('fs')
-const {execSync, exec} = require('child_process');
+const {execSync, exec} = require('child_process')
 const {readFile, updateFile, writeFile,
     enableFlyMode, setKeys, getGuideUrl,
-    saveKeySet, readKeySet } = require('./service/service')
+    saveKeySet, readKeySet, flyTeleport } = require('./service/service')
 
 
 const env = ''
@@ -341,6 +341,11 @@ ipcMain.handle('event_get_new_version',()=>{
         console.log(e.message)
     }
     return 0
+})
+
+ipcMain.handle('event_fly_teleport',(__, params)=>{
+    const {camsTxtPath, profilePath} = JSON.parse(params)
+    flyTeleport(camsTxtPath, profilePath)
 })
 
 

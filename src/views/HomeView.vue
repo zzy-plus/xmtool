@@ -5,7 +5,7 @@ import OptionView from "@/views/OptionView.vue";
 import {DocumentChecked, FolderOpened} from '@element-plus/icons-vue';
 import UpdateView from "@/views/UpdateView.vue";
 
-const _version = '0.2.9'
+const _version = '0.3.0'
 
 const ipc = myApi.ipc
 let etsPath = ''
@@ -238,6 +238,18 @@ const openKeyMap = ()=>{
 const updateDlgShow = ref(false)
 const updateInfo = ref({})
 
+const teleport = ()=>{
+  if(document_selected.value){
+    const euro2Path = gamePath.substring(0, gamePath.length - 9)
+    const camsTxtPath = euro2Path + '\\cams.txt'
+    const profilePath = gamePath + '\\' + document_selected.value + '\\save'
+    ipc.invoke('event_fly_teleport', JSON.stringify({
+      camsTxtPath: camsTxtPath,
+      profilePath: profilePath
+    }))
+  }
+}
+
 </script>
 
 <template>
@@ -351,8 +363,12 @@ const updateInfo = ref({})
             <el-button type="success" :icon="FolderOpened" size="small" @click="onOpenFolder">浏览</el-button>
           </el-button-group>
 
-          <el-button type="warning" @click="onSave" style="margin-top: 10px">&nbsp;&nbsp;&nbsp;保存&nbsp;&nbsp;&nbsp;
-          </el-button>
+          <el-button-group style="position: relative; top: 10px">
+            <el-button type="warning" @click="onSave" >&nbsp;&nbsp;&nbsp;保存&nbsp;&nbsp;&nbsp;
+            </el-button>
+            <el-button type="danger" @click="teleport">飞行传送</el-button>
+          </el-button-group>
+
         </div>
 
 

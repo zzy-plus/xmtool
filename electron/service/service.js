@@ -1,8 +1,9 @@
 const fs = require('fs')
 const keymap = require('./keymap')
 const os = require('os')
+const {execSync} = require('child_process')
 
-const engine_750 = "/def/vehicle/truck/volvo.fh16_2012/engine/d16g750.sii"
+const engine_750 = "/def/vehicle/truck/scania.s_2016/engine/dc16_730.sii"
 
 //读取文件内容
 const readFile = (filePath)=>{
@@ -429,6 +430,43 @@ const readKeySet = ()=>{
     }
 }
 
+const flyTeleport = (camsTxtPath, profilePath)=>{
+    const content = fs.readFileSync(camsTxtPath,'utf8')
+    let lines = content.split('\n')
+    let line = lines[lines.length - 1]
+
+    let location = line.split(' ; ')[1]
+    location = location.replaceAll(';', ',')
+    console.log(location)
+    let rotation = line.split(' ; ')[2]
+    rotation = rotation.replaceAll(';', ',').replace(',', ';')
+    console.log(rotation)
+
+    // 解密
+    const quicksaveGameSii = `${profilePath}\\quicksave\\game.sii`
+    try {
+        // 在这里执行你的CMD命令
+        execSync(`SII_Decrypt \"${quicksaveGameSii}\"`)
+    } catch (error) {}
+
+    const gameSiiContent = fs.readFileSync(quicksaveGameSii, 'utf8')
+    lines = gameSiiContent.split('\r\n')
+    let index = 0
+    for (const line of lines) {
+        if(line.trim().startsWith('truck_placement:')){
+            lines[index] = ` truck_placement: (${location}) (${rotation})`
+        }
+        if(line.trim().startsWith('trailer_placement:')){
+            lines[index] = ` trailer_placement: (0, 0, 0) (${rotation})`
+            break
+        }
+        index ++
+    }
+    fs.writeFileSync(quicksaveGameSii, lines.join('\r\n'), 'utf8')
+
+
+}
+
 
 module.exports = {
     readFile,
@@ -438,6 +476,7 @@ module.exports = {
     setKeys,
     getGuideUrl,
     saveKeySet,
-    readKeySet
+    readKeySet,
+    flyTeleport
 }
 

@@ -24,6 +24,27 @@ watch(props,(newProps)=>{
   deep:true
 })
 
+const menuItemShow = ref('1')
+const handleSelect = (val)=>{
+  menuItemShow.value = val
+  console.log(menuItemShow.value)
+}
+
+
+const copy = ()=>{
+  const text = '123asd'
+  navigator.clipboard.writeText(text)
+      .then(function() {
+        ElMessage({
+          type: 'success',
+          message: '复制成功'
+        })
+      })
+      .catch(function(err) {
+        ElMessage.error('复制失败')
+      });
+}
+
 </script>
 
 <template>
@@ -81,41 +102,58 @@ watch(props,(newProps)=>{
 
     <el-divider />
 
-    <el-row>
+<!--    <el-menu-->
+<!--      default-active="1"-->
+<!--      class="el-menu-demo"-->
+<!--      mode="horizontal"-->
+<!--      @select="handleSelect"-->
+<!--      style="height: 30px; font-weight: bold; position: relative; top: 5px"-->
+<!--      active-text-color="orange"-->
+<!--    >-->
+<!--      <el-menu-item index="1">-->
+<!--        修改项-->
+<!--      </el-menu-item>-->
+<!--      <el-menu-item index="2">-->
+<!--        传送-->
+<!--      </el-menu-item>-->
+
+<!--    </el-menu>-->
+
+    <el-row style="position: relative; top: 0;">
       <el-col :span="12">
         <div style="display: flex; flex-direction: column; justify-content: space-around; align-items: flex-start;
              height: 230px;">
           <el-checkbox v-model="props.money" size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
             <template #default>
-              <el-tag effect="dark" type="warning">
+              <el-tag effect="dark" type="warning" style="width: 115px;">
                 <span style="font-weight: bold; font-size: medium" >&nbsp;&nbsp;&nbsp;&nbsp;金币1亿&nbsp;&nbsp;&nbsp;&nbsp;</span>
               </el-tag>
             </template>
           </el-checkbox>
           <el-checkbox v-model="props.level" size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
             <template #default>
-              <el-tag effect="dark" type="warning">
+              <el-tag effect="dark" type="warning" style="width: 115px;">
                 <span style="font-weight: bold; font-size: medium" >&nbsp;&nbsp;&nbsp;&nbsp;等级100&nbsp;&nbsp;&nbsp;&nbsp;</span>
               </el-tag>
             </template>
           </el-checkbox>
           <el-checkbox v-model="props.skill" size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
             <template #default>
-              <el-tag effect="dark" type="warning">
+              <el-tag effect="dark" type="warning" style="width: 115px;">
                 <span style="font-weight: bold; font-size: medium" >解锁全部技能</span>
               </el-tag>
             </template>
           </el-checkbox>
           <el-checkbox v-model="props.city" size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
             <template #default>
-              <el-tag effect="dark" type="warning">
+              <el-tag effect="dark" type="warning" style="width: 115px;">
                 <span style="font-weight: bold; font-size: medium" >解锁全部城市</span>
               </el-tag>
             </template>
           </el-checkbox>
           <el-checkbox v-model="props.mass" size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
             <template #default>
-              <el-tag effect="dark" type="warning">
+              <el-tag effect="dark" type="warning" style="width: 115px;">
                 <span style="font-weight: bold; font-size: medium" >货物改为一吨</span>
               </el-tag>
             </template>
@@ -128,41 +166,39 @@ watch(props,(newProps)=>{
             height: 230px;">
           <el-checkbox v-model="props.garage" size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
             <template #default>
-              <el-tag effect="dark" type="warning">
+              <el-tag effect="dark" type="warning" style="width: 115px;">
                 <span style="font-weight: bold; font-size: medium" >解锁全部车库</span>
               </el-tag>
             </template>
           </el-checkbox>
           <el-checkbox v-model="props.truckVendors" size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
             <template #default>
-              <el-tag effect="dark" type="warning">
+              <el-tag effect="dark" type="warning" style="width: 115px;">
                 <span style="font-weight: bold; font-size: medium" >&nbsp;解锁销售商&nbsp;&nbsp;</span>
               </el-tag>
             </template>
           </el-checkbox>
           <el-checkbox v-model="props.fixAll" size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
             <template #default>
-              <el-tag effect="dark" type="warning">
+              <el-tag effect="dark" type="warning" style="width: 115px;">
                 <span style="font-weight: bold; font-size: medium" >修复全部车辆</span>
               </el-tag>
             </template>
           </el-checkbox>
           <el-checkbox v-model="props.fuelling" size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
             <template #default>
-              <el-tag effect="dark" type="warning">
+              <el-tag effect="dark" type="warning" style="width: 115px;">
                 <span style="font-weight: bold; font-size: medium" >全部车辆满油</span>
               </el-tag>
             </template>
           </el-checkbox>
           <el-checkbox v-model="props.engine" size="large" border :style="{boxShadow: `var(--el-box-shadow-light)`}">
             <template #default>
-              <el-tag effect="dark" type="warning">
-                <span style="font-weight: bold; font-size: medium" >&nbsp;&nbsp;750发动机&nbsp;&nbsp;</span>
+              <el-tag effect="dark" type="warning" style="width: 115px;">
+                <span style="font-weight: bold; font-size: medium" >&nbsp;&nbsp;730发动机&nbsp;&nbsp;</span>
               </el-tag>
             </template>
           </el-checkbox>
-
-
         </div>
       </el-col>
     </el-row>
