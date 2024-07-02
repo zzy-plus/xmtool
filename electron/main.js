@@ -32,10 +32,6 @@ const mainMenu = Menu.buildFromTemplate([
             {
                 label: '飞行模式',
                 click: ()=> showFlyModeDlg()
-            },
-            {
-                label: '调试[DeBug]',
-                role: 'toggledevtools'
             }
         ]
     },
@@ -234,7 +230,7 @@ ipcMain.handle('event_save', (event, _props) => {
 })
 
 ipcMain.handle('event_open', () => {
-    const urlToOpen = 'https://xmvtc.mysxl.cn/'
+    const urlToOpen = 'https://www.xmsanren.cn'
     execSync(`start ${urlToOpen}`)
 })
 
@@ -302,7 +298,6 @@ ipcMain.handle('event_man_select',()=>{
             console.log(err)
         });
     })
-
 })
 
 ipcMain.handle('event_enable_fly', (event, params)=>{

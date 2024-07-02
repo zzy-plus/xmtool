@@ -68,6 +68,14 @@ const onChangeDoc = async (doc) => {
   const docPath = gamePath + '\\' + doc + '\\save'
   save_opts.value = await ipc.invoke('event_get_saves', docPath)
 }
+
+const onFocusSaveSelector = async ()=>{
+  const docPath = gamePath + '\\' + document_selected.value + '\\save'
+  save_opts.value = await ipc.invoke('event_get_saves', docPath)
+  if(!save_opts.value.includes(save_selected.value)){
+    save_selected.value = null
+  }
+}
 const onChangeSave = (save) => {
   save_selected.value = save
 }
@@ -281,6 +289,13 @@ const salt = ref()
 const xmToken = ref('')
 myApi.ipcListen('show_auth_dlg',async (e, _salt)=>{
   salt.value = _salt
+  if(authState.value) {
+    ElMessage({
+      type: 'info',
+      message: '已验证，无需重复验证。'
+    })
+    return
+  }
   authDlgShow.value = true
 })
 
@@ -393,7 +408,9 @@ const startAuth = async ()=>{
           </div>
 
           <div :style="{boxShadow: `var(--el-box-shadow-light)`}" style="margin-top: 10px">
-            <el-select v-model="save_selected" class="m-2" placeholder="请选择存档" size="large" @change="onChangeSave">
+            <el-select v-model="save_selected" class="m-2" placeholder="请选择存档" size="large"
+                       @change="onChangeSave"
+                       @focus="onFocusSaveSelector">
               <el-option
                   v-for="item in save_opts"
                   :key="item.save"
