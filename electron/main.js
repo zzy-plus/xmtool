@@ -4,10 +4,12 @@ const fs = require('fs')
 const {execSync, exec} = require('child_process')
 const {readFile, updateFile, writeFile,
     enableFlyMode, setKeys, getGuideUrl,
-    saveKeySet, readKeySet, flyTeleport } = require('./service/service')
+    saveKeySet, readKeySet, flyTeleport,
+    generateSalt, hashWithSalt} = require('./service/service')
+const iconv = require('iconv-lite')
+const os = require("os");
 
-
-const env = ''
+const env = app.isPackaged? '': 'dev'
 
 let guideUrl = 'https://www.baidu.com'
 const mainMenu = Menu.buildFromTemplate([
@@ -15,8 +17,8 @@ const mainMenu = Menu.buildFromTemplate([
         label: '菜单',
         submenu: [
             {
-                label: '关闭窗口',
-                role: 'quit'
+              label: '身份验证',
+              click: ()=> win.webContents.send('show_auth_dlg', generateSalt())
             },
             {
                 label: '关于',
@@ -65,6 +67,7 @@ const createWindow = () => {
     })
 
     if (env === 'dev') {
+        //win.loadURL('https://qun.qq.com/member.html')
         win.loadURL('http://localhost:5173/')
         //win.webContents.openDevTools()
     } else if (env === 'dev2') {
@@ -84,9 +87,9 @@ const showDlg = async () => {
     const options = {
         type: 'info',
         title: '关于这款软件',
-        message: '开源地址：https://github.com/zzy-plus/xmtool\n' +
+        message: '免费软件，禁止商用！\n' +
             '车队交流群：685297275\n' +
-            '@zzy77',
+            '@XM*009-OverFlow009',
         buttons: ['关闭']
     };
 
@@ -269,12 +272,14 @@ ipcMain.handle('event_get_path',()=>{
     return new Promise((resolve,reject)=>{
         const command = 'reg query \"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\" /v Personal'
 
-        exec(command, (err,stdout, stderr)=>{
+        exec(command, {encoding: 'buffer'}, (err,stdout, stderr)=>{
             if(err){
                 console.log('Erro: ' + stderr)
                 resolve({ets_path: 'ets_path', ats_path: 'ats_path'})
+                return;
             }
-            const user_doc = stdout.split(' ').pop().replace(/\r\n/g,'')
+            const decodedOutput = iconv.decode(stdout, 'cp936'); // 'cp936' is the code page for Simplified Chinese
+            const user_doc = decodedOutput.split(' ').pop().replace(/\r\n/g,'')
             const ets_path = user_doc + '\\Euro Truck Simulator 2\\profiles'
             const ats_path = user_doc + '\\American Truck Simulator\\profiles'
             resolve({ets_path: ets_path, ats_path: ats_path})
@@ -346,6 +351,42 @@ ipcMain.handle('event_get_new_version',()=>{
 ipcMain.handle('event_fly_teleport',(__, params)=>{
     const {camsTxtPath, profilePath} = JSON.parse(params)
     flyTeleport(camsTxtPath, profilePath)
+})
+
+ipcMain.handle('event_start_auth', (__, params)=>{
+    const {salt, xmToken} = params
+    return new Promise((resolve,reject)=>{
+        const token = hashWithSalt(salt)
+        // xmToken.substring(5) === token.substring(5)
+        if (xmToken.substring(5) === token.substring(5)){
+            //保存认证信息
+            const homedir = os.homedir();
+            const authFilePath = homedir + '\\AppData\\Roaming\\xmtool\\profile'
+            fs.writeFileSync(authFilePath, JSON.stringify(params))
+            resolve(true)
+        }else {
+            resolve(false)
+        }
+    })
+})
+
+ipcMain.handle('event_get_auth', ()=>{
+    return new Promise((resolve,reject)=>{
+        const homedir = os.homedir();
+        const authFilePath = homedir + '\\AppData\\Roaming\\xmtool\\profile'
+        if(!fs.existsSync(authFilePath)){
+            resolve(false)
+            return
+        }
+        const content = fs.readFileSync(authFilePath, 'utf8')
+        const {salt, xmToken} = JSON.parse(content)
+        const token = hashWithSalt(salt)
+        if(xmToken.substring(5) === token.substring(5)){
+            resolve(true)
+        }else{
+            resolve(false)
+        }
+    })
 })
 
 

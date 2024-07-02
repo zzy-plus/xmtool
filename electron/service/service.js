@@ -2,8 +2,9 @@ const fs = require('fs')
 const keymap = require('./keymap')
 const os = require('os')
 const {execSync} = require('child_process')
+const CryptoJS = require('crypto-js')
 
-const engine_750 = "/def/vehicle/truck/scania.s_2016/engine/dc16_730.sii"
+const engine_730 = "/def/vehicle/truck/scania.s_2016/engine/dc16_730.sii"
 
 //读取文件内容
 const readFile = (filePath)=>{
@@ -76,7 +77,7 @@ const updateFile = (data, props, licensePlate)=>{
 
         //匹配到车牌才开始检索要修改的行，修改完屏蔽engine选项防止多次修改
         if(engine_flag && line.includes('engine')){
-            fileArr[index] = ' data_path: \"/def/vehicle/truck/volvo.fh16_2012/engine/d16g750.sii\"'
+            fileArr[index] = ` data_path: "${engine_730}"`
             engine_flag = false
             __engine = false
         }
@@ -387,15 +388,15 @@ const setKeys = (controlsPath, keys)=>{
 
 const getGuideUrl = ()=>{
     return new Promise((resolve, reject)=>{
-        fetch('http://121.37.222.191:8020/get')
+        fetch('http://errorserver.top:5005/common/guide')
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('请求失败：' + response.status)
+                    throw new Error('error: ' + response.status)
                 }
                 return response.json()
             })
             .then(data => {
-                resolve(data.xmToolGuideUrl)
+                resolve(data.data)
             })
             .catch(error => {
                 console.log(error.message)
@@ -463,9 +464,28 @@ const flyTeleport = (camsTxtPath, profilePath)=>{
         index ++
     }
     fs.writeFileSync(quicksaveGameSii, lines.join('\r\n'), 'utf8')
-
-
 }
+
+const generateSalt = ()=>{
+    const str1 = Date.now().toString(36)
+    let str2 = ''
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    for (let i = 0; i < 12; i++){
+        str2 += characters.charAt(Math.floor(Math.random() * characters.length))
+    }
+    return  str2 + str1
+}
+
+const hashWithSalt = (salt)=>{
+    const md5Str = CryptoJS.MD5(salt.substring(5)).toString()
+    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789'
+    let str = ''
+    for (let i = 0; i < 5; i++){
+        str += characters.charAt(Math.floor(Math.random() * characters.length))
+    }
+    return str + md5Str
+}
+
 
 
 module.exports = {
@@ -477,6 +497,8 @@ module.exports = {
     getGuideUrl,
     saveKeySet,
     readKeySet,
-    flyTeleport
+    flyTeleport,
+    generateSalt,
+    hashWithSalt
 }
 

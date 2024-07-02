@@ -4,6 +4,7 @@ import '@/assets/index.css'
 import OptionView from "@/views/OptionView.vue";
 import {DocumentChecked, FolderOpened} from '@element-plus/icons-vue';
 import UpdateView from "@/views/UpdateView.vue";
+import {ElMessage} from "element-plus";
 
 const _version = '0.3.0'
 
@@ -45,6 +46,20 @@ const getDocs = async () => {
   } else {
     document_opts.value = data
     return true
+  }
+}
+
+const onFocusDocSelector = async()=>{
+  const {status, data, msg} = await ipc.invoke('event_get_docs', gamePath)
+  if(!status){
+    document_opts.value = []
+    return
+  }
+  document_opts.value = data
+  if(!data.includes(document_selected.value)){
+    document_selected.value = null
+    save_selected.value = null
+    save_opts.value = []
   }
 }
 const onChangeDoc = async (doc) => {
@@ -108,10 +123,12 @@ const onSave = async () => {
 
 onMounted(async () => {
   await initApp()
-  getUpdateInfo()
+  //getUpdateInfo()
 })
 
 const initApp = async ()=>{
+  //获取认证状态
+  authState.value = await ipc.invoke('event_get_auth','')
   const res = await ipc.invoke('event_get_path','')
   etsPath = res.ets_path
   atsPath = res.ats_path
@@ -239,6 +256,10 @@ const updateDlgShow = ref(false)
 const updateInfo = ref({})
 
 const teleport = ()=>{
+  if(!authState.value){
+    ElMessage.error('此功能完成认证后开放！【菜单】-【身份验证】')
+    return
+  }
   if(document_selected.value){
     const euro2Path = gamePath.substring(0, gamePath.length - 9)
     const camsTxtPath = euro2Path + '\\cams.txt'
@@ -252,6 +273,28 @@ const teleport = ()=>{
       message: '传送成功！'
     })
   }
+}
+
+const authState = ref(false) //认证状态
+const authDlgShow = ref(false)
+const salt = ref()
+const xmToken = ref('')
+myApi.ipcListen('show_auth_dlg',async (e, _salt)=>{
+  salt.value = _salt
+  authDlgShow.value = true
+})
+
+const startAuth = async ()=>{
+  const result = await ipc.invoke('event_start_auth', {salt: salt.value, xmToken: xmToken.value})
+  if(result){
+    ElMessage({
+      message: '认证成功，重启后生效！',
+      type: 'success'
+    })
+  }else {
+    ElMessage.error('认证失败！')
+  }
+  authDlgShow.value = false
 }
 
 </script>
@@ -338,7 +381,8 @@ const teleport = ()=>{
         <div>
           <div :style="{boxShadow: `var(--el-box-shadow-light)`}">
             <el-select v-model="document_selected" class="m-2" placeholder="请选择档案" size="large"
-                       @change="onChangeDoc">
+                       @change="onChangeDoc"
+                       @focus="onFocusDocSelector">
               <el-option
                   v-for="item in document_opts"
                   :key="item.profile"
@@ -475,5 +519,31 @@ const teleport = ()=>{
       </el-button>
     </template>
   </el-dialog>
+
+  <!-- 认证Drawer -->
+  <el-drawer v-model="authDlgShow" direction="ttb" :with-header="false"
+             :show-close="false" size="26%" :close-on-click-modal="false">
+    <template #default>
+      <div>
+        你的令牌：<span style="color: #e74949; font-weight: bold" >xm-{{salt}}</span>
+        &nbsp;在<span style="color: #67c23a; font-weight: bold">车队群</span>发送该令牌以获取密钥
+      </div>
+      <div style="position: relative; top: 5px">
+        <span>输入密钥：</span>
+        <el-input v-model="xmToken" style="width: 440px"/>
+      </div>
+      <span style="color: #ef7125; font-weight: bold;
+            position: relative; top: 20px; left: 50px">详情咨询车队交流群：685297275</span>
+      <el-button
+          style="position: relative; top: 20px; left: 18%"
+          @click="authDlgShow = false">&nbsp;关闭&nbsp;
+      </el-button>
+      <el-button
+          style="position: relative; top: 20px; left: 18%"
+          type="primary" @click="startAuth">确定&nbsp;^.^
+      </el-button>
+
+    </template>
+  </el-drawer>
 
 </template>
